@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projectplan - Villa Zandvoort - DXF Editor</title>
+    <title>Projectplan - Kantoor Amsterdam - DXF Editor</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -27,6 +27,7 @@
 
             --success: rgb(63, 185, 80);
             --warning: rgb(210, 153, 34);
+            --error: rgb(248, 81, 73);
 
             --font-primary: 'Jost', -apple-system, BlinkMacSystemFont, sans-serif;
 
@@ -161,6 +162,13 @@
             box-shadow: 0 10px 30px var(--color-accent-glow);
         }
 
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .btn svg {
             width: 16px;
             height: 16px;
@@ -180,7 +188,7 @@
 
         .progress-fill {
             height: 100%;
-            width: 60%;
+            width: 25%;
             background: var(--color-accent);
             transition: width var(--transition-smooth);
         }
@@ -246,6 +254,14 @@
             color: var(--text-muted);
         }
 
+        .section-status.warning {
+            color: var(--warning);
+        }
+
+        .section-status.processing {
+            color: var(--color-accent);
+        }
+
         .section-body {
             padding: 24px;
         }
@@ -253,6 +269,12 @@
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
         }
 
@@ -264,6 +286,10 @@
 
         .form-group.full-width {
             grid-column: span 2;
+        }
+
+        .form-group.full-width-3 {
+            grid-column: span 3;
         }
 
         .form-label {
@@ -309,8 +335,11 @@
         }
 
         .form-textarea {
-            min-height: 120px;
+            min-height: 200px;
             resize: vertical;
+            font-family: monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
         }
 
         .form-hint {
@@ -318,52 +347,379 @@
             color: var(--text-muted);
         }
 
-        /* Room List */
-        .room-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        /* File Upload */
+        .file-upload-area {
+            border: 2px dashed var(--border-color);
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-bottom: 16px;
         }
 
-        .room-item {
+        .file-upload-area:hover {
+            border-color: var(--color-accent);
+            background: var(--color-accent-dim);
+        }
+
+        .file-upload-area svg {
+            width: 40px;
+            height: 40px;
+            stroke: var(--text-muted);
+            fill: none;
+            stroke-width: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .file-upload-area:hover svg {
+            stroke: var(--color-accent);
+        }
+
+        .file-upload-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .file-upload-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .or-divider {
             display: flex;
             align-items: center;
             gap: 16px;
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 16px;
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
         }
 
-        .room-item-content {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 16px;
-            align-items: center;
+        .toggle-label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        .room-name {
+        .toggle-title {
             font-weight: 500;
+            font-size: 0.95rem;
         }
 
-        .room-size {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .room-height {
+        .toggle-description {
+            font-size: 0.8rem;
             color: var(--text-muted);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .toggle-switch.active {
+            background: var(--color-accent);
+            border-color: var(--color-accent);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--text-primary);
+            top: 2px;
+            left: 2px;
+            transition: transform var(--transition-fast);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+            background: var(--text-dark);
+        }
+
+        /* Requirements List */
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-fast);
+            gap: 12px;
+        }
+
+        .requirement-item.has-value {
+            border-color: var(--success);
+            background: rgba(63, 185, 80, 0.05);
+        }
+
+        .requirement-item.partial {
+            border-color: var(--warning);
+            background: rgba(210, 153, 34, 0.05);
+        }
+
+        .requirement-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .requirement-name {
+            font-weight: 500;
             font-size: 0.85rem;
         }
 
-        .room-actions {
+        .requirement-detail {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .requirement-controls {
             display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .count-btn {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            font-family: var(--font-primary);
+        }
+
+        .count-btn:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+            background: var(--color-accent-dim);
+        }
+
+        .count-btn:active {
+            transform: scale(0.95);
+        }
+
+        .count-input {
+            width: 50px;
+            height: 28px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            text-align: center;
+            font-family: monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0 4px;
+        }
+
+        .count-input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+        }
+
+        .count-input::-webkit-inner-spin-button,
+        .count-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Category Header */
+        .category-header {
+            grid-column: span 2;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-left: 3px solid var(--color-accent);
+            margin-top: 8px;
+        }
+
+        .category-header:first-child {
+            margin-top: 0;
+        }
+
+        .category-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--color-accent);
+        }
+
+        /* Warnings Section */
+        .warnings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .warning-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-fast);
+        }
+
+        .warning-item.checked {
+            border-color: var(--success);
+            background: rgba(63, 185, 80, 0.05);
+        }
+
+        .warning-item.unchecked {
+            border-color: var(--warning);
+            background: rgba(210, 153, 34, 0.05);
+        }
+
+        .warning-checkbox {
+            width: 24px;
+            height: 24px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all var(--transition-fast);
+        }
+
+        .warning-checkbox:hover {
+            border-color: var(--color-accent);
+        }
+
+        .warning-checkbox.checked {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .warning-checkbox svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--text-dark);
+            fill: none;
+            stroke-width: 3;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .warning-checkbox.checked svg {
+            opacity: 1;
+        }
+
+        .warning-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             gap: 8px;
         }
 
-        .icon-btn {
-            width: 36px;
-            height: 36px;
+        .warning-text-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid transparent;
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            font-size: 0.9rem;
+            padding: 4px 0;
+            width: 100%;
+            transition: border-color var(--transition-fast);
+        }
+
+        .warning-text-input:hover {
+            border-bottom-color: var(--border-color);
+        }
+
+        .warning-text-input:focus {
+            outline: none;
+            border-bottom-color: var(--color-accent);
+        }
+
+        .warning-text-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .warning-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .warning-condition {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .warning-condition-input {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-family: var(--font-primary);
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            width: 180px;
+        }
+
+        .warning-condition-input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            color: var(--text-primary);
+        }
+
+        .warning-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .warning-delete-btn {
+            width: 28px;
+            height: 28px;
             background: transparent;
             border: 1px solid var(--border-color);
             color: var(--text-muted);
@@ -374,20 +730,21 @@
             transition: all var(--transition-fast);
         }
 
-        .icon-btn:hover {
-            border-color: var(--text-primary);
-            color: var(--text-primary);
+        .warning-delete-btn:hover {
+            border-color: var(--error);
+            color: var(--error);
+            background: rgba(248, 81, 73, 0.1);
         }
 
-        .icon-btn svg {
-            width: 16px;
-            height: 16px;
+        .warning-delete-btn svg {
+            width: 14px;
+            height: 14px;
             stroke: currentColor;
             fill: none;
             stroke-width: 2;
         }
 
-        .add-room-btn {
+        .add-warning-btn {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -401,14 +758,15 @@
             font-weight: 500;
             cursor: pointer;
             transition: all var(--transition-fast);
+            margin-top: 8px;
         }
 
-        .add-room-btn:hover {
+        .add-warning-btn:hover {
             border-color: var(--color-accent);
             color: var(--color-accent);
         }
 
-        .add-room-btn svg {
+        .add-warning-btn svg {
             width: 18px;
             height: 18px;
             stroke: currentColor;
@@ -445,88 +803,87 @@
             padding: 20px;
         }
 
-        /* DXF Preview */
-        .dxf-preview {
-            aspect-ratio: 4/3;
-            background:
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 20px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
+        /* Stats Summary */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
             margin-bottom: 16px;
-            border: 1px solid var(--border-color);
         }
 
-        .dxf-preview svg {
-            width: 48px;
-            height: 48px;
-            stroke: var(--text-muted);
-            fill: none;
-            stroke-width: 1;
-        }
-
-        .dxf-preview span {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .dxf-filename {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            text-align: center;
-            padding: 12px;
+        .stat-item {
+            padding: 16px;
             background: var(--bg-tertiary);
+            text-align: center;
         }
 
-        /* Checklist */
-        .checklist {
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-accent);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Progress Circle */
+        .progress-circle-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-        }
-
-        .checklist-item {
-            display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: var(--bg-tertiary);
+            padding: 20px;
         }
 
-        .checklist-check {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+        .progress-circle {
+            position: relative;
+            width: 120px;
+            height: 120px;
         }
 
-        .checklist-check.done {
-            background: var(--success);
-            border-color: var(--success);
+        .progress-circle svg {
+            transform: rotate(-90deg);
         }
 
-        .checklist-check svg {
-            width: 12px;
-            height: 12px;
-            stroke: var(--text-dark);
+        .progress-circle-bg {
             fill: none;
-            stroke-width: 3;
+            stroke: var(--bg-tertiary);
+            stroke-width: 8;
         }
 
-        .checklist-text {
-            font-size: 0.9rem;
+        .progress-circle-fill {
+            fill: none;
+            stroke: var(--color-accent);
+            stroke-width: 8;
+            stroke-linecap: square;
+            stroke-dasharray: 339.292;
+            stroke-dashoffset: 305.36;
+            transition: stroke-dashoffset var(--transition-smooth);
         }
 
-        .checklist-item.done .checklist-text {
+        .progress-circle-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .progress-percentage {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .progress-label {
+            font-size: 0.7rem;
             color: var(--text-muted);
-            text-decoration: line-through;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
         /* AI Suggestion */
@@ -566,6 +923,84 @@
             line-height: 1.5;
         }
 
+        /* Processing Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .processing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--color-accent-dim);
+            margin-top: 16px;
+        }
+
+        .processing-indicator.hidden {
+            display: none;
+        }
+
+        .processing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .processing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--color-accent);
+            border-radius: 50%;
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+
+        .processing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .processing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .processing-text {
+            font-size: 0.85rem;
+            color: var(--color-accent);
+        }
+
+        /* Building Info Card */
+        .building-specs {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .spec-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--bg-tertiary);
+        }
+
+        .spec-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .spec-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .spec-value.yes {
+            color: var(--success);
+        }
+
+        .spec-value.no {
+            color: var(--error);
+        }
+
         /* Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
@@ -582,6 +1017,48 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--text-muted);
         }
+
+        /* Warnings summary in sidebar */
+        .warnings-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .warning-summary-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--bg-tertiary);
+            font-size: 0.8rem;
+        }
+
+        .warning-summary-item.ok {
+            border-left: 3px solid var(--success);
+        }
+
+        .warning-summary-item.alert {
+            border-left: 3px solid var(--warning);
+        }
+
+        .warning-summary-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .warning-summary-icon.ok {
+            color: var(--success);
+        }
+
+        .warning-summary-icon.alert {
+            color: var(--warning);
+        }
+
+        .warning-summary-text {
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
@@ -593,7 +1070,7 @@
                 Terug
             </a>
             <div class="header-title">
-                <h1>Villa Zandvoort</h1>
+                <h1>Kantoor Amsterdam</h1>
                 <span>Projectplan</span>
             </div>
         </div>
@@ -615,172 +1092,447 @@
     <main class="main">
         <!-- Form Section -->
         <div class="form-section">
-            <!-- Section 1: General Info -->
+            <!-- Section 1: Transcript Input -->
             <div class="section">
                 <div class="section-header">
                     <div>
                         <span class="section-number">1</span>
-                        <span class="section-title">Algemene informatie</span>
+                        <span class="section-title">Vergadering transcript</span>
                     </div>
                     <div class="section-status">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                        Voltooid
+                        Verwerkt
                     </div>
                 </div>
                 <div class="section-body">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Projectnaam</label>
-                            <input type="text" class="form-input" value="Villa Zandvoort">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Klant</label>
-                            <input type="text" class="form-input" value="Familie Bakker">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Type project</label>
-                            <select class="form-select">
-                                <option>Nieuwbouw</option>
-                                <option selected>Renovatie</option>
-                                <option>Uitbreiding</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Totaal oppervlakte (m²)</label>
-                            <input type="text" class="form-input" value="285">
-                        </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Projectomschrijving</label>
-                            <textarea class="form-textarea" placeholder="Beschrijf het project en de wensen van de klant...">Complete renovatie van een vrijstaande villa uit de jaren '80. De klant wil een open woonkeuken, meer lichtinval en een moderne indeling met werkruimte aan huis.</textarea>
-                        </div>
+                    <div class="file-upload-area">
+                        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <div class="file-upload-text">Sleep een transcript bestand hierheen</div>
+                        <div class="file-upload-hint">of klik om een bestand te selecteren (.txt, .docx, .pdf)</div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Section 2: Rooms -->
-            <div class="section">
-                <div class="section-header">
-                    <div>
-                        <span class="section-number">2</span>
-                        <span class="section-title">Ruimte-indeling</span>
+                    <div class="or-divider">of plak de tekst hieronder</div>
+
+                    <div class="form-group">
+                        <label class="form-label">Vergadering transcript</label>
+                        <textarea class="form-textarea" placeholder="Plak hier de tekst van het vergadering transcript...">Aanwezig: Jan (projectleider), Maria (architect), Pieter (facility manager)
+
+Jan: Goedemiddag allemaal. Laten we beginnen met de eisen voor het nieuwe kantoor. Hoeveel werkplekken hebben we nodig?
+
+Maria: We moeten ruimte hebben voor 200 werkplekken maximaal. Op dit moment hebben we er 184 ingetekend.
+
+Pieter: Ja, en we hebben ook vergaderruimtes nodig. Ik denk aan 4 grote vergaderruimtes voor 12 personen.
+
+Jan: Drie daarvan zijn al ingetekend. En de kleine vergaderruimtes?
+
+Maria: We hebben 10 vergaderruimtes voor 4 personen nodig. Die zijn allemaal al ingetekend.
+
+Pieter: We moeten ook een grote vergaderruimte hebben voor 30 personen. Voor de kwartaalpresentaties.
+
+Jan: Goed punt. Verder hebben we 5 directieruimtes nodig. Die zijn al ingetekend als vervanging voor de gesloten ruimtes.
+
+Maria: Vergeet de phonebooths niet. We hebben er 5 nodig.
+
+Pieter: En we hebben een archief nodig van 10 vierkante meter, 2 opslagruimtes van 25 vierkante meter, een serverruimte, een EHBO-ruimte, 2 printers, een helpdesk en 2 of 3 pantries.
+
+Jan: Lockers? Hoeveel hebben we er nodig?
+
+Maria: Minimaal 60, maar eventueel meer als er ruimte is.
+
+Pieter: We willen ook 3 treincoupés en een relax/fun ruimte.
+
+Jan: Goed om te weten: als de fun ruimte vervalt, kunnen we 16 extra werkplekken plaatsen.
+
+Maria: En een ontvangstruimte bij de entree.
+
+Jan: Wat betreft het gebouw zelf - heeft het een systeemplafond?
+
+Pieter: Ja, het gebouw heeft een systeemplafond. De plafondhoogte is 2.70 meter. We zitten op verdieping 4.
+
+Jan: Perfect. Dan hebben we alles besproken.</textarea>
                     </div>
-                    <div class="section-status">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                        Voltooid
+
+                    <div class="processing-indicator hidden">
+                        <div class="processing-dots">
+                            <div class="processing-dot"></div>
+                            <div class="processing-dot"></div>
+                            <div class="processing-dot"></div>
+                        </div>
+                        <span class="processing-text">AI analyseert transcript...</span>
                     </div>
-                </div>
-                <div class="section-body">
-                    <div class="room-list">
-                        <div class="room-item">
-                            <div class="room-item-content">
-                                <div class="room-name">Woonkamer</div>
-                                <div class="room-size">45 m²</div>
-                                <div class="room-height">Plafond: 2.80m</div>
-                            </div>
-                            <div class="room-actions">
-                                <button class="icon-btn">
-                                    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </button>
-                                <button class="icon-btn">
-                                    <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="room-item">
-                            <div class="room-item-content">
-                                <div class="room-name">Open keuken</div>
-                                <div class="room-size">28 m²</div>
-                                <div class="room-height">Plafond: 2.80m</div>
-                            </div>
-                            <div class="room-actions">
-                                <button class="icon-btn">
-                                    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </button>
-                                <button class="icon-btn">
-                                    <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="room-item">
-                            <div class="room-item-content">
-                                <div class="room-name">Slaapkamer (master)</div>
-                                <div class="room-size">22 m²</div>
-                                <div class="room-height">Plafond: 2.60m</div>
-                            </div>
-                            <div class="room-actions">
-                                <button class="icon-btn">
-                                    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </button>
-                                <button class="icon-btn">
-                                    <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="room-item">
-                            <div class="room-item-content">
-                                <div class="room-name">Badkamer</div>
-                                <div class="room-size">12 m²</div>
-                                <div class="room-height">Plafond: 2.40m</div>
-                            </div>
-                            <div class="room-actions">
-                                <button class="icon-btn">
-                                    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </button>
-                                <button class="icon-btn">
-                                    <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="room-item">
-                            <div class="room-item-content">
-                                <div class="room-name">Werkkamer</div>
-                                <div class="room-size">15 m²</div>
-                                <div class="room-height">Plafond: 2.60m</div>
-                            </div>
-                            <div class="room-actions">
-                                <button class="icon-btn">
-                                    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </button>
-                                <button class="icon-btn">
-                                    <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <button class="add-room-btn">
-                            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-                            Ruimte toevoegen
+
+                    <div style="margin-top: 16px;">
+                        <button class="btn btn-primary" style="width: 100%;">
+                            <svg viewBox="0 0 24 24" style="stroke: var(--text-dark);"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                            Transcript analyseren
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Section 3: Special Requirements -->
+            <!-- Section 2: Building Specifications -->
+            <div class="section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-number">2</span>
+                        <span class="section-title">Gebouw specificaties</span>
+                    </div>
+                    <div class="section-status">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        Voltooid
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <div class="toggle-group">
+                                <div class="toggle-label">
+                                    <span class="toggle-title">Systeemplafond</span>
+                                    <span class="toggle-description">Heeft het gebouw een systeemplafond?</span>
+                                </div>
+                                <div class="toggle-switch active"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Plafondhoogte</label>
+                            <input type="text" class="form-input" value="2.70 m" placeholder="bijv. 2.70 m">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Verdieping</label>
+                            <input type="text" class="form-input" value="4" placeholder="bijv. 4">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Requirements Checklist (Editable) -->
             <div class="section">
                 <div class="section-header">
                     <div>
                         <span class="section-number">3</span>
-                        <span class="section-title">Bijzondere wensen</span>
+                        <span class="section-title">Ruimte-eisen</span>
                     </div>
                     <div class="section-status incomplete">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
-                        In bewerking
+                        14/17 ingevuld
                     </div>
                 </div>
                 <div class="section-body">
-                    <div class="form-grid">
-                        <div class="form-group full-width">
-                            <label class="form-label">Speciale eisen badkamer</label>
-                            <textarea class="form-textarea" placeholder="Bijv. inloopdouche, dubbele wastafel, vloerverwarming...">Inloopdouche met regendouchekop, dubbele wastafel met veel opbergruimte, inbouw toilet, vloerverwarming.</textarea>
+                    <div class="requirements-grid">
+                        <!-- Werkruimtes -->
+                        <div class="category-header">
+                            <span class="category-title">Werkruimtes</span>
                         </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Speciale eisen keuken</label>
-                            <textarea class="form-textarea" placeholder="Bijv. kookeiland, bijkeuken, specifieke apparatuur...">Groot kookeiland met bar, geïntegreerde apparatuur, aparte bijkeuken aangrenzend.</textarea>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Werkplekken</span>
+                                <span class="requirement-detail">max 200</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="184" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
                         </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Overige wensen</label>
-                            <textarea class="form-textarea" placeholder="Andere specifieke wensen of opmerkingen..."></textarea>
-                            <span class="form-hint">Vul hier eventuele overige wensen in die niet onder bovenstaande categorieën vallen.</span>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Directieruimte</span>
+                                <span class="requirement-detail">i.p.v. gesloten ruimtes</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="5" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
                         </div>
+
+                        <!-- Vergaderruimtes -->
+                        <div class="category-header">
+                            <span class="category-title">Vergaderruimtes</span>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Vergaderruimte 12p.</span>
+                                <span class="requirement-detail">grote vergaderruimte</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="3" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Vergaderruimte 4p.</span>
+                                <span class="requirement-detail">kleine vergaderruimte</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="10" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Vergaderruimte 30p.</span>
+                                <span class="requirement-detail">big meeting</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="1" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Treincoupé</span>
+                                <span class="requirement-detail">trein-stijl zitplaatsen</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="3" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Focus ruimtes -->
+                        <div class="category-header">
+                            <span class="category-title">Focus ruimtes</span>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Phonebooths</span>
+                                <span class="requirement-detail">individuele belruimte</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="5" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Faciliteiten -->
+                        <div class="category-header">
+                            <span class="category-title">Faciliteiten</span>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Archief</span>
+                                <span class="requirement-detail">10 m²</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="1" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Opslag</span>
+                                <span class="requirement-detail">25 m² per ruimte</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="3" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Serverruimte</span>
+                                <span class="requirement-detail">IT infrastructuur</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="1" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">EHBO</span>
+                                <span class="requirement-detail">first aid ruimte</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="1" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Printer</span>
+                                <span class="requirement-detail">print/scan station</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="2" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Helpdesk</span>
+                                <span class="requirement-detail">IT ondersteuning</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="1" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Pantry</span>
+                                <span class="requirement-detail">keukenvoorziening</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="2" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Lockers</span>
+                                <span class="requirement-detail">eventueel meer</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="60" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Extra's -->
+                        <div class="category-header">
+                            <span class="category-title">Extra's</span>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Relax/Fun</span>
+                                <span class="requirement-detail">ontspanningsruimte</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="1" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="requirement-item">
+                            <div class="requirement-info">
+                                <span class="requirement-name">Ontvangst</span>
+                                <span class="requirement-detail">receptie/lobby</span>
+                            </div>
+                            <div class="requirement-controls">
+                                <button class="count-btn" onclick="adjustCount(this, -1)">−</button>
+                                <input type="number" class="count-input" value="1" min="0" max="999">
+                                <button class="count-btn" onclick="adjustCount(this, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Warnings / Let op (Editable) -->
+            <div class="section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-number">4</span>
+                        <span class="section-title">Waarschuwingen & controles</span>
+                    </div>
+                    <div class="section-status warning">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        1/3 gecontroleerd
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="warnings-list">
+                        <!-- Warning 1 -->
+                        <div class="warning-item unchecked">
+                            <div class="warning-checkbox" onclick="toggleWarning(this)">
+                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div class="warning-content">
+                                <input type="text" class="warning-text-input" value="Indien fun ruimte vervalt, zijn +16 werkplekken mogelijk">
+                                <div class="warning-meta">
+                                    <span class="warning-condition">
+                                        Conditie:
+                                        <input type="text" class="warning-condition-input" value="Relax/Fun = 0" placeholder="bijv. Relax/Fun = 0">
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="warning-actions">
+                                <button class="warning-delete-btn" onclick="deleteWarning(this)">
+                                    <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Warning 2 -->
+                        <div class="warning-item checked">
+                            <div class="warning-checkbox checked" onclick="toggleWarning(this)">
+                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div class="warning-content">
+                                <input type="text" class="warning-text-input" value="Controleer of er voldoende nooduitgangen zijn voor 200 werkplekken">
+                                <div class="warning-meta">
+                                    <span class="warning-condition">
+                                        Conditie:
+                                        <input type="text" class="warning-condition-input" value="Werkplekken > 150" placeholder="bijv. Werkplekken > 150">
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="warning-actions">
+                                <button class="warning-delete-btn" onclick="deleteWarning(this)">
+                                    <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Warning 3 -->
+                        <div class="warning-item unchecked">
+                            <div class="warning-checkbox" onclick="toggleWarning(this)">
+                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div class="warning-content">
+                                <input type="text" class="warning-text-input" value="Bij systeemplafond: extra aandacht voor akoestiek in grote vergaderruimtes">
+                                <div class="warning-meta">
+                                    <span class="warning-condition">
+                                        Conditie:
+                                        <input type="text" class="warning-condition-input" value="Systeemplafond = ja" placeholder="bijv. Systeemplafond = ja">
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="warning-actions">
+                                <button class="warning-delete-btn" onclick="deleteWarning(this)">
+                                    <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Add Warning Button -->
+                        <button class="add-warning-btn" onclick="addWarning()">
+                            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                            Waarschuwing toevoegen
+                        </button>
                     </div>
                 </div>
             </div>
@@ -788,52 +1540,78 @@
 
         <!-- Sidebar -->
         <aside class="sidebar">
-            <!-- DXF Preview -->
+            <!-- Progress Overview -->
             <div class="sidebar-card">
                 <div class="sidebar-card-header">
-                    <h3 class="sidebar-card-title">Bronbestand</h3>
+                    <h3 class="sidebar-card-title">Voortgang</h3>
                 </div>
                 <div class="sidebar-card-body">
-                    <div class="dxf-preview">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        <span>DXF Preview</span>
+                    <div class="progress-circle-container">
+                        <div class="progress-circle">
+                            <svg width="120" height="120">
+                                <circle class="progress-circle-bg" cx="60" cy="60" r="54"/>
+                                <circle class="progress-circle-fill" cx="60" cy="60" r="54"/>
+                            </svg>
+                            <div class="progress-circle-text">
+                                <div class="progress-percentage">82%</div>
+                                <div class="progress-label">Compleet</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="dxf-filename">villa_zandvoort_v1.dxf</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">14</div>
+                            <div class="stat-label">Ingevuld</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">Onvolledig</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Checklist -->
+            <!-- Warnings Summary -->
             <div class="sidebar-card">
                 <div class="sidebar-card-header">
-                    <h3 class="sidebar-card-title">Checklist</h3>
+                    <h3 class="sidebar-card-title">Controles</h3>
                 </div>
                 <div class="sidebar-card-body">
-                    <div class="checklist">
-                        <div class="checklist-item done">
-                            <div class="checklist-check done">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                            </div>
-                            <span class="checklist-text">Algemene informatie ingevuld</span>
+                    <div class="warnings-summary">
+                        <div class="warning-summary-item alert">
+                            <svg class="warning-summary-icon alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                            <span class="warning-summary-text">Fun ruimte trade-off</span>
                         </div>
-                        <div class="checklist-item done">
-                            <div class="checklist-check done">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                            </div>
-                            <span class="checklist-text">Ruimtes gedefinieerd</span>
+                        <div class="warning-summary-item ok">
+                            <svg class="warning-summary-icon ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span class="warning-summary-text">Nooduitgangen gecontroleerd</span>
                         </div>
-                        <div class="checklist-item done">
-                            <div class="checklist-check done">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                            </div>
-                            <span class="checklist-text">Plafond hoogtes opgegeven</span>
+                        <div class="warning-summary-item alert">
+                            <svg class="warning-summary-icon alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                            <span class="warning-summary-text">Akoestiek systeemplafond</span>
                         </div>
-                        <div class="checklist-item">
-                            <div class="checklist-check"></div>
-                            <span class="checklist-text">Bijzondere wensen compleet</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Building Info -->
+            <div class="sidebar-card">
+                <div class="sidebar-card-header">
+                    <h3 class="sidebar-card-title">Gebouw info</h3>
+                </div>
+                <div class="sidebar-card-body">
+                    <div class="building-specs">
+                        <div class="spec-row">
+                            <span class="spec-label">Systeemplafond</span>
+                            <span class="spec-value yes">Ja</span>
                         </div>
-                        <div class="checklist-item">
-                            <div class="checklist-check"></div>
-                            <span class="checklist-text">Plan goedgekeurd door klant</span>
+                        <div class="spec-row">
+                            <span class="spec-label">Plafondhoogte</span>
+                            <span class="spec-value">2.70 m</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-label">Verdieping</span>
+                            <span class="spec-value">4</span>
                         </div>
                     </div>
                 </div>
@@ -842,7 +1620,7 @@
             <!-- AI Suggestion -->
             <div class="sidebar-card">
                 <div class="sidebar-card-header">
-                    <h3 class="sidebar-card-title">AI Suggestie</h3>
+                    <h3 class="sidebar-card-title">AI Analyse</h3>
                 </div>
                 <div class="sidebar-card-body">
                     <div class="ai-suggestion">
@@ -850,13 +1628,98 @@
                             <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                         </div>
                         <div class="ai-content">
-                            <h4>Tip voor de plattegrond</h4>
-                            <p>Op basis van de opgegeven oppervlaktes zou ik aanraden om de werkkamer direct naast de woonkamer te plaatsen voor een betere lichtinval.</p>
+                            <h4>Ontbrekende eisen</h4>
+                            <p>Er ontbreekt nog 1 vergaderruimte voor 12 personen. Ook zijn de werkplekken nog niet volledig (184/200).</p>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- DXF Preview -->
+            <div class="sidebar-card">
+                <div class="sidebar-card-header">
+                    <h3 class="sidebar-card-title">Bronbestand</h3>
+                </div>
+                <div class="sidebar-card-body">
+                    <div style="aspect-ratio: 4/3; background: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 20px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; border: 1px solid var(--border-color);">
+                        <svg width="48" height="48" viewBox="0 0 24 24" stroke="var(--text-muted)" fill="none" stroke-width="1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">DXF Preview</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); text-align: center; padding: 12px; background: var(--bg-tertiary);">kantoor_amsterdam_v2.dxf</div>
+                </div>
+            </div>
         </aside>
     </main>
+
+    <script>
+        // Toggle switch functionality
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        // Adjust count with +/- buttons
+        function adjustCount(btn, delta) {
+            const controls = btn.parentElement;
+            const input = controls.querySelector('.count-input');
+            let value = parseInt(input.value) || 0;
+            value = Math.max(0, value + delta);
+            input.value = value;
+        }
+
+        // Toggle warning checkbox
+        function toggleWarning(checkbox) {
+            checkbox.classList.toggle('checked');
+            const warningItem = checkbox.closest('.warning-item');
+            warningItem.classList.toggle('checked');
+            warningItem.classList.toggle('unchecked');
+        }
+
+        // Delete warning
+        function deleteWarning(btn) {
+            const warningItem = btn.closest('.warning-item');
+            warningItem.remove();
+        }
+
+        // Add new warning
+        function addWarning() {
+            const warningsList = document.querySelector('.warnings-list');
+            const addBtn = warningsList.querySelector('.add-warning-btn');
+
+            const newWarning = document.createElement('div');
+            newWarning.className = 'warning-item unchecked';
+            newWarning.innerHTML = `
+                <div class="warning-checkbox" onclick="toggleWarning(this)">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="warning-content">
+                    <input type="text" class="warning-text-input" placeholder="Voer waarschuwing tekst in..." autofocus>
+                    <div class="warning-meta">
+                        <span class="warning-condition">
+                            Conditie:
+                            <input type="text" class="warning-condition-input" placeholder="bijv. Werkplekken > 100">
+                        </span>
+                    </div>
+                </div>
+                <div class="warning-actions">
+                    <button class="warning-delete-btn" onclick="deleteWarning(this)">
+                        <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </div>
+            `;
+
+            warningsList.insertBefore(newWarning, addBtn);
+            newWarning.querySelector('.warning-text-input').focus();
+        }
+
+        // Listen for input changes on count inputs
+        document.querySelectorAll('.count-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const value = parseInt(this.value) || 0;
+                this.value = Math.max(0, value);
+            });
+        });
+    </script>
 </body>
 </html>
