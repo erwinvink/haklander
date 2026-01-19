@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DXF Chat Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-accent: rgb(254, 192, 34);
+            --color-accent-hover: rgb(230, 170, 20);
+            --color-accent-dim: rgba(254, 192, 34, 0.15);
+            --color-accent-glow: rgba(254, 192, 34, 0.4);
+
+            --bg-primary: rgb(10, 12, 16);
+            --bg-secondary: rgb(15, 18, 24);
+            --bg-tertiary: rgb(20, 24, 32);
+
+            --text-primary: rgb(255, 255, 255);
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+            --text-dark: rgb(10, 12, 16);
+
+            --border-color: rgba(255, 255, 255, 0.1);
+            --grid-color: rgba(255, 255, 255, 0.05);
+
+            --success: rgb(63, 185, 80);
+            --error: rgb(248, 81, 73);
+
+            --font-primary: 'Jost', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --transition-fast: 0.2s ease;
+            --transition-smooth: 0.4s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background: var(--color-accent);
+            color: var(--text-dark);
+        }
+
+        /* Header */
+        .header {
+            height: 60px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--color-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-dark);
+        }
+
+        .logo-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            font-family: var(--font-primary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            border-color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-primary {
+            background: var(--color-accent);
+            color: var(--text-dark);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--color-accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--color-accent-glow);
+        }
+
+        .btn svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        /* Main Layout */
+        .main {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        /* Viewer Panel */
+        .viewer-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .viewer-toolbar {
+            height: 48px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .file-name {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .file-status {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 6px 12px;
+            background: var(--color-accent-dim);
+            color: var(--color-accent);
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all var(--transition-fast);
+        }
+
+        .zoom-btn:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        .zoom-level {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* Viewer Canvas */
+        .viewer-canvas {
+            flex: 1;
+            background: #e8e8e8;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        .viewer-canvas:active {
+            cursor: grabbing;
+        }
+
+        .svg-container {
+            position: absolute;
+            transform-origin: 0 0;
+            cursor: grab;
+        }
+
+        .svg-container:active {
+            cursor: grabbing;
+        }
+
+        .svg-container svg {
+            display: block;
+            width: auto !important;
+            height: auto !important;
+            max-width: none;
+            max-height: none;
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background: var(--bg-primary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .upload-zone.hidden {
+            display: none;
+        }
+
+        .upload-zone:hover {
+            background: var(--bg-secondary);
+        }
+
+        .upload-zone.dragover {
+            background: var(--bg-tertiary);
+            border: 2px dashed var(--color-accent);
+        }
+
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        .upload-zone:hover .upload-icon {
+            border-color: var(--color-accent);
+        }
+
+        .upload-icon svg {
+            width: 32px;
+            height: 32px;
+            stroke: var(--text-muted);
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .upload-zone:hover .upload-icon svg {
+            stroke: var(--color-accent);
+        }
+
+        .upload-text {
+            text-align: center;
+        }
+
+        .upload-text h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .upload-text p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Layers Panel */
+        .layers-panel {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            min-width: 160px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .layers-panel.hidden {
+            display: none;
+        }
+
+        .layers-title {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: var(--color-accent);
+            margin-bottom: 12px;
+        }
+
+        .layer-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+        }
+
+        .layer-color {
+            width: 12px;
+            height: 3px;
+            background: var(--color-accent);
+        }
+
+        .layer-count {
+            margin-left: auto;
+            color: var(--text-muted);
+        }
+
+        /* Chat Panel */
+        .chat-panel {
+            width: 440px;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-secondary);
+        }
+
+        .chat-header {
+            height: 48px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 12px;
+        }
+
+        .chat-header-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--color-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-header-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-dark);
+        }
+
+        .chat-header-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.02em;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message-user {
+            align-items: flex-end;
+        }
+
+        .message-assistant {
+            align-items: flex-start;
+        }
+
+        .message-content {
+            max-width: 85%;
+            padding: 14px 18px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .message-user .message-content {
+            background: var(--color-accent);
+            color: var(--text-dark);
+        }
+
+        .message-assistant .message-content {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .message-code {
+            margin-top: 10px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            max-width: 85%;
+        }
+
+        .code-header {
+            background: var(--bg-tertiary);
+            padding: 10px 14px;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .code-header .executed {
+            color: var(--success);
+        }
+
+        .code-header .error {
+            color: var(--error);
+        }
+
+        .code-content {
+            padding: 14px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        .message-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--success);
+            padding-left: 4px;
+        }
+
+        .message-status.error {
+            color: var(--error);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+        }
+
+        .message-status.error .status-dot {
+            background: var(--error);
+        }
+
+        /* Loading indicator */
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 18px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .loading-dots span {
+            width: 6px;
+            height: 6px;
+            background: var(--color-accent);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Chat Input */
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            padding: 14px;
+            transition: all var(--transition-fast);
+        }
+
+        .chat-input-wrapper:focus-within {
+            border-color: var(--color-accent);
+        }
+
+        .chat-input-wrapper.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            font-size: 0.9rem;
+            resize: none;
+            outline: none;
+            min-height: 24px;
+            max-height: 120px;
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--color-accent);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-smooth);
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: var(--color-accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--color-accent-glow);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .send-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--text-dark);
+        }
+
+        .chat-hint {
+            margin-top: 10px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Hidden file input */
+        #file-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <input type="file" id="file-input" accept=".dxf">
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <span class="logo-text">DXF Chat Editor</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary" id="btn-upload">
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                Upload DXF
+            </button>
+            <button class="btn btn-secondary" id="btn-export-dxf" disabled>
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Export DXF
+            </button>
+            <button class="btn btn-primary" id="btn-export-pdf" disabled>
+                Export PDF
+                <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Viewer Panel -->
+        <div class="viewer-panel">
+            <div class="viewer-toolbar">
+                <div class="file-info">
+                    <span class="file-name" id="file-name">No file loaded</span>
+                    <span class="file-status" id="file-status" style="display: none;">Loaded</span>
+                </div>
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoom-out">−</button>
+                    <span class="zoom-level" id="zoom-level">100%</span>
+                    <button class="zoom-btn" id="zoom-in">+</button>
+                    <button class="zoom-btn" id="zoom-fit" title="Fit to view">⊡</button>
+                </div>
+            </div>
+            <div class="viewer-canvas" id="viewer-canvas">
+                <!-- Upload Zone -->
+                <div class="upload-zone" id="upload-zone">
+                    <div class="upload-icon">
+                        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    </div>
+                    <div class="upload-text">
+                        <h3>Upload DXF File</h3>
+                        <p>Drag and drop or click to browse</p>
+                    </div>
+                </div>
+
+                <!-- Layers Panel -->
+                <div class="layers-panel hidden" id="layers-panel">
+                    <div class="layers-title">Layers</div>
+                    <div id="layers-list"></div>
+                </div>
+
+                <!-- SVG Container -->
+                <div class="svg-container" id="svg-container"></div>
+            </div>
+        </div>
+
+        <!-- Chat Panel -->
+        <div class="chat-panel">
+            <div class="chat-header">
+                <div class="chat-header-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <span class="chat-header-title">AI Editor</span>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <!-- Welcome Message -->
+                <div class="message message-assistant">
+                    <div class="message-content">
+                        Welcome to <strong>DXF Chat Editor</strong>. Upload a DXF file to get started. You can then describe changes in natural language and I'll generate the code to modify your drawing.
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper disabled" id="chat-input-wrapper">
+                    <textarea class="chat-input" id="chat-input" placeholder="Describe what you want to change..." rows="1"></textarea>
+                    <button class="send-btn" id="send-btn" disabled>
+                        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                    </button>
+                </div>
+                <div class="chat-hint">Describe changes in natural language • AI generates ezdxf code</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // State
+        let fileLoaded = false;
+        let zoomLevel = 100;
+        let baseScale = 1; // Scale needed to fit SVG in viewport
+        let isProcessing = false;
+
+        // Pan/Drag state
+        let isPanning = false;
+        let panStartX = 0;
+        let panStartY = 0;
+        let panOffsetX = 0;
+        let panOffsetY = 0;
+
+        // DOM Elements
+        const fileInput = document.getElementById('file-input');
+        const uploadZone = document.getElementById('upload-zone');
+        const layersPanel = document.getElementById('layers-panel');
+        const layersList = document.getElementById('layers-list');
+        const svgContainer = document.getElementById('svg-container');
+        const viewerCanvas = document.getElementById('viewer-canvas');
+        const fileName = document.getElementById('file-name');
+        const fileStatus = document.getElementById('file-status');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const chatInputWrapper = document.getElementById('chat-input-wrapper');
+        const sendBtn = document.getElementById('send-btn');
+        const btnUpload = document.getElementById('btn-upload');
+        const btnExportDxf = document.getElementById('btn-export-dxf');
+        const btnExportPdf = document.getElementById('btn-export-pdf');
+        const zoomIn = document.getElementById('zoom-in');
+        const zoomOut = document.getElementById('zoom-out');
+        const zoomFit = document.getElementById('zoom-fit');
+        const zoomLevelDisplay = document.getElementById('zoom-level');
+
+        // Event Listeners
+        uploadZone.addEventListener('click', () => fileInput.click());
+        btnUpload.addEventListener('click', () => fileInput.click());
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.toLowerCase().endsWith('.dxf')) {
+                uploadFile(file);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                uploadFile(file);
+            }
+        });
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Auto-resize textarea
+        chatInput.addEventListener('input', () => {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+        });
+
+        // Zoom controls
+        zoomIn.addEventListener('click', () => setZoom(zoomLevel + 25));
+        zoomOut.addEventListener('click', () => setZoom(zoomLevel - 25));
+        zoomFit.addEventListener('click', () => fitToView());
+
+        // Pan/Drag functionality
+        viewerCanvas.addEventListener('mousedown', (e) => {
+            if (e.target === uploadZone || uploadZone.contains(e.target)) return;
+            isPanning = true;
+            panStartX = e.clientX - panOffsetX;
+            panStartY = e.clientY - panOffsetY;
+            viewerCanvas.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isPanning) return;
+            panOffsetX = e.clientX - panStartX;
+            panOffsetY = e.clientY - panStartY;
+            updateSvgTransform();
+        });
+
+        document.addEventListener('mouseup', () => {
+            isPanning = false;
+            viewerCanvas.style.cursor = 'grab';
+        });
+
+        // Mouse wheel zoom
+        viewerCanvas.addEventListener('wheel', (e) => {
+            if (!fileLoaded) return;
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -10 : 10;
+            setZoom(zoomLevel + delta);
+        });
+
+        // Export buttons
+        btnExportDxf.addEventListener('click', () => exportFile('dxf'));
+        btnExportPdf.addEventListener('click', () => exportFile('pdf'));
+
+        // Functions
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                addSystemMessage('Uploading and processing DXF file...');
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Upload failed');
+                }
+
+                // Update UI
+                fileLoaded = true;
+                fileName.textContent = data.filename;
+                fileStatus.style.display = 'inline-block';
+                fileStatus.textContent = 'Loaded';
+
+                // Show SVG
+                svgContainer.innerHTML = data.svg;
+                uploadZone.classList.add('hidden');
+
+                // Fix SVG dimensions - set to a workable size
+                const svg = svgContainer.querySelector('svg');
+                if (svg) {
+                    // Get aspect ratio from viewBox
+                    const viewBox = svg.getAttribute('viewBox');
+                    if (viewBox) {
+                        const parts = viewBox.split(/\s+/);
+                        const vbWidth = parseFloat(parts[2]);
+                        const vbHeight = parseFloat(parts[3]);
+                        const aspectRatio = vbWidth / vbHeight;
+
+                        // Set to a reasonable pixel size maintaining aspect ratio
+                        const baseSize = 2000;
+                        if (aspectRatio > 1) {
+                            svg.setAttribute('width', baseSize);
+                            svg.setAttribute('height', baseSize / aspectRatio);
+                        } else {
+                            svg.setAttribute('width', baseSize * aspectRatio);
+                            svg.setAttribute('height', baseSize);
+                        }
+                    } else {
+                        svg.setAttribute('width', 2000);
+                        svg.setAttribute('height', 2000);
+                    }
+                }
+
+                // Fit to view after a brief delay for rendering
+                setTimeout(() => {
+                    fitToView();
+                }, 50);
+
+                // Update layers
+                updateLayers(data.layers);
+                layersPanel.classList.remove('hidden');
+
+                // Enable chat and export
+                chatInputWrapper.classList.remove('disabled');
+                sendBtn.disabled = false;
+                btnExportDxf.disabled = false;
+                btnExportPdf.disabled = false;
+
+                addAssistantMessage(`File <strong>${data.filename}</strong> loaded successfully. I found ${data.layers.length} layers. You can now describe changes you'd like to make.`);
+
+            } catch (error) {
+                addErrorMessage(`Failed to upload: ${error.message}`);
+            }
+        }
+
+        function updateLayers(layers) {
+            const colors = ['#fec022', '#8be9fd', '#ff79c6', '#50fa7b', '#bd93f9', '#ffb86c'];
+            layersList.innerHTML = layers.map((layer, i) => `
+                <div class="layer-item">
+                    <div class="layer-color" style="background: ${colors[i % colors.length]};"></div>
+                    ${layer.name}
+                    <span class="layer-count">${layer.entity_count}</span>
+                </div>
+            `).join('');
+        }
+
+        async function sendMessage() {
+            if (!fileLoaded || isProcessing) return;
+
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Clear input
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+
+            // Add user message
+            addUserMessage(message);
+
+            // Show loading
+            isProcessing = true;
+            sendBtn.disabled = true;
+            const loadingEl = addLoadingIndicator();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+
+                // Remove loading
+                loadingEl.remove();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Request failed');
+                }
+
+                // Add assistant response
+                addCodeResponse(data);
+
+                // Update SVG if changed
+                if (data.svg_updated) {
+                    await refreshSvg();
+                    fileStatus.textContent = 'Modified';
+                }
+
+            } catch (error) {
+                loadingEl.remove();
+                addErrorMessage(`Error: ${error.message}`);
+            } finally {
+                isProcessing = false;
+                sendBtn.disabled = false;
+            }
+        }
+
+        async function refreshSvg() {
+            try {
+                const response = await fetch('/api/svg');
+                const svgContent = await response.text();
+                svgContainer.innerHTML = svgContent;
+
+                // Fix SVG dimensions - set to a workable size
+                const svg = svgContainer.querySelector('svg');
+                if (svg) {
+                    const viewBox = svg.getAttribute('viewBox');
+                    if (viewBox) {
+                        const parts = viewBox.split(/\s+/);
+                        const vbWidth = parseFloat(parts[2]);
+                        const vbHeight = parseFloat(parts[3]);
+                        const aspectRatio = vbWidth / vbHeight;
+                        const baseSize = 2000;
+                        if (aspectRatio > 1) {
+                            svg.setAttribute('width', baseSize);
+                            svg.setAttribute('height', baseSize / aspectRatio);
+                        } else {
+                            svg.setAttribute('width', baseSize * aspectRatio);
+                            svg.setAttribute('height', baseSize);
+                        }
+                    }
+                }
+
+                updateSvgTransform(); // Maintain current pan/zoom
+
+                // Refresh layers
+                const layersResponse = await fetch('/api/layers');
+                const layersData = await layersResponse.json();
+                updateLayers(layersData.layers);
+            } catch (error) {
+                console.error('Failed to refresh SVG:', error);
+            }
+        }
+
+        function addUserMessage(text) {
+            const el = document.createElement('div');
+            el.className = 'message message-user';
+            el.innerHTML = `<div class="message-content">${escapeHtml(text)}</div>`;
+            chatMessages.appendChild(el);
+            scrollToBottom();
+        }
+
+        function addAssistantMessage(html) {
+            const el = document.createElement('div');
+            el.className = 'message message-assistant';
+            el.innerHTML = `<div class="message-content">${html}</div>`;
+            chatMessages.appendChild(el);
+            scrollToBottom();
+        }
+
+        function addSystemMessage(text) {
+            const el = document.createElement('div');
+            el.className = 'message message-assistant';
+            el.innerHTML = `<div class="message-content" style="font-style: italic; color: var(--text-muted);">${escapeHtml(text)}</div>`;
+            chatMessages.appendChild(el);
+            scrollToBottom();
+        }
+
+        function addErrorMessage(text) {
+            const el = document.createElement('div');
+            el.className = 'message message-assistant';
+            el.innerHTML = `<div class="message-content" style="border-color: var(--error); color: var(--error);">${escapeHtml(text)}</div>`;
+            chatMessages.appendChild(el);
+            scrollToBottom();
+        }
+
+        function addCodeResponse(data) {
+            const el = document.createElement('div');
+            el.className = 'message message-assistant';
+
+            let html = `<div class="message-content">${escapeHtml(data.response)}</div>`;
+
+            if (data.code) {
+                html += `
+                    <div class="message-code">
+                        <div class="code-header">
+                            <span>Python (ezdxf)</span>
+                            <span class="${data.executed ? 'executed' : 'error'}">${data.executed ? 'Executed' : 'Failed'} ${data.executed ? '✓' : '✗'}</span>
+                        </div>
+                        <div class="code-content">${escapeHtml(data.code)}</div>
+                    </div>
+                `;
+            }
+
+            if (data.result) {
+                html += `
+                    <div class="message-status ${data.executed ? '' : 'error'}">
+                        <span class="status-dot"></span>
+                        ${escapeHtml(data.result)}
+                    </div>
+                `;
+            }
+
+            el.innerHTML = html;
+            chatMessages.appendChild(el);
+            scrollToBottom();
+        }
+
+        function addLoadingIndicator() {
+            const el = document.createElement('div');
+            el.className = 'message message-assistant';
+            el.innerHTML = `
+                <div class="loading">
+                    <div class="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    Generating code...
+                </div>
+            `;
+            chatMessages.appendChild(el);
+            scrollToBottom();
+            return el;
+        }
+
+        function setZoom(level) {
+            zoomLevel = Math.max(10, Math.min(500, level));
+            zoomLevelDisplay.textContent = zoomLevel + '%';
+            updateSvgTransform();
+        }
+
+        function updateSvgTransform() {
+            const scale = baseScale * (zoomLevel / 100);
+            svgContainer.style.transform = `translate(${panOffsetX}px, ${panOffsetY}px) scale(${scale})`;
+        }
+
+        function fitToView() {
+            const svg = svgContainer.querySelector('svg');
+            if (!svg) return;
+
+            const canvasRect = viewerCanvas.getBoundingClientRect();
+            const padding = 40;
+
+            // Get the SVG's dimensions from attributes
+            const svgWidth = parseFloat(svg.getAttribute('width')) || 2000;
+            const svgHeight = parseFloat(svg.getAttribute('height')) || 2000;
+
+            // Calculate scale to fit
+            const availableWidth = canvasRect.width - padding * 2;
+            const availableHeight = canvasRect.height - padding * 2;
+
+            const scaleX = availableWidth / svgWidth;
+            const scaleY = availableHeight / svgHeight;
+            baseScale = Math.min(scaleX, scaleY);
+
+            // Reset zoom to 100% and center
+            zoomLevel = 100;
+            zoomLevelDisplay.textContent = '100%';
+
+            // Calculate centered position
+            const scaledWidth = svgWidth * baseScale;
+            const scaledHeight = svgHeight * baseScale;
+
+            panOffsetX = (canvasRect.width - scaledWidth) / 2;
+            panOffsetY = (canvasRect.height - scaledHeight) / 2;
+
+            updateSvgTransform();
+        }
+
+        function centerSvg() {
+            fitToView();
+        }
+
+        async function exportFile(type) {
+            try {
+                const response = await fetch(`/api/export/${type}`);
+                if (!response.ok) throw new Error('Export failed');
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = response.headers.get('content-disposition')?.split('filename=')[1] || `export.${type}`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+                addAssistantMessage(`${type.toUpperCase()} file exported successfully.`);
+            } catch (error) {
+                addErrorMessage(`Export failed: ${error.message}`);
+            }
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
