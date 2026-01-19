@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.interieurbouw-haklander.nl)",
+      "Bash(curl:*)",
+      "Bash(open:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:interiorarchitects.com)"
+    ]
+  }
+}
